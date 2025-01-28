@@ -15,7 +15,7 @@ from config import app, db, api
 
 @app.route('/')
 def index():
-    return '<h1>Project Server</h1>'
+    return '<h1>Student Enrollment System</h1>'
 
 
 if __name__ == '__main__':
