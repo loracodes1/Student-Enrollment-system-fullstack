@@ -24,3 +24,29 @@ class Student(db.Model, SerializerMixin):
         self.email = email
 
 
+class Course(db.Model, SerializerMixin):
+    __tablename__ = 'courses'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    title = db.Column(db.String(100), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # One-to-many relationship with Enrollment
+    enrollments = db.relationship('Enrollment', backref='course', lazy=True)
+
+    # Adding SerializerMixin for easy JSON serialization
+    def __init__(self, title):
+        self.title = title
+
+
+# Enrollment Model
+class Enrollment(db.Model, SerializerMixin):
+    __tablename__ = 'enrollments'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
+    enrollment_date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    
