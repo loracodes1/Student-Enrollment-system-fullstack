@@ -15,4 +15,12 @@ class Student(db.Model, SerializerMixin):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # One-to-many relationship with Enrollment
-   
+    enrollments = db.relationship('Enrollment', backref='student', lazy=True)
+
+    # Adding SerializerMixin for easy JSON serialization
+    def __init__(self, name, age, email):
+        self.name = name
+        self.age = age
+        self.email = email
+
+
