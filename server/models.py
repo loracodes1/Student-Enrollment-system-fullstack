@@ -1,82 +1,99 @@
 from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.ext.associationproxy import association_proxy
 from config import db
-from datetime import datetime
+
+# ✅ Department Model (One-to-Many: Departments → Instructors)
+class Department(db.Model, SerializerMixin):
+    __tablename__ = 'departments'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+
+    # Relationships
+    instructors = db.relationship("Instructor", back_populates="department")
+
+    # Serialization Rules
+    serialize_rules = ("-instructors.department",)
 
 
-# Student Model
+# ✅ Instructor Model (One-to-Many: Instructors → Units)
+class Instructor(db.Model, SerializerMixin):
+    __tablename__ = 'instructors'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    email = db.Column(db.String, unique=True, nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+
+    # Foreign Key & Relationship with Department
+    department_id = db.Column(db.Integer, db.ForeignKey("departments.id"))
+    department = db.relationship("Department", back_populates="instructors")
+
+    # Relationship with Units (One-to-Many)
+    units = db.relationship("Unit", back_populates="instructor")
+
+    # Serialization Rules
+    serialize_rules = ("-units.instructor", "-department.instructors")
+
+
+# ✅ Unit Model (One-to-Many: Units → Enrollments)
+class Unit(db.Model, SerializerMixin):
+    __tablename__ = 'units'
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String, nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+
+    # Foreign Key & Relationship with Instructor
+    instructor_id = db.Column(db.Integer, db.ForeignKey("instructors.id"))
+    instructor = db.relationship("Instructor", back_populates="units")
+
+    # Relationship with Enrollments (Many-to-Many via enrollments table)
+    enrollments = db.relationship("Enrollment", back_populates="unit", cascade="all, delete-orphan")
+    students = association_proxy("enrollments", "student")
+
+    # Serialization Rules
+    serialize_rules = ("-instructor.units", "-enrollments.unit")
+
+
+# ✅ Student Model (One-to-Many: Students → Enrollments)
 class Student(db.Model, SerializerMixin):
     __tablename__ = 'students'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(100), nullable=False)
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
     age = db.Column(db.Integer, nullable=False)
-    email = db.Column(db.String(100), unique=True, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
-    # One-to-many relationship with Enrollment
-    enrollments = db.relationship('Enrollment', backref='student', lazy=True)
+    # Relationship with Enrollments (Many-to-Many via enrollments table)
+    enrollments = db.relationship("Enrollment", back_populates="student", cascade="all, delete-orphan")
+    units = association_proxy("enrollments", "unit")
 
-    # Adding SerializerMixin for easy JSON serialization
-    def __init__(self, name, age, email):
-        self.name = name
-        self.age = age
-        self.email = email
+    # Serialization Rules
+    serialize_rules = ("-enrollments.student",)
 
 
-class Course(db.Model, SerializerMixin):
-    __tablename__ = 'courses'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    title = db.Column(db.String(100), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    # One-to-many relationship with Enrollment
-    enrollments = db.relationship('Enrollment', backref='course', lazy=True)
-
-    # Adding SerializerMixin for easy JSON serialization
-    def __init__(self, title):
-        self.title = title
-
-
-# Enrollment Model
+# ✅ Enrollment Model (Many-to-Many: Students ↔ Units)
 class Enrollment(db.Model, SerializerMixin):
     __tablename__ = 'enrollments'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    student_id = db.Coumn(db.Integer, db.ForeignKey('students.id'), nullable=False)
-    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
-    enrollment_date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Many-to-one relationships
-    student = db.relationship('Student', backref='enrollments', lazy=True)
-    course = db.relationship('Course', backref='enrollments', lazy=True)
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id"))
+    unit_id = db.Column(db.Integer, db.ForeignKey("units.id"))
+    enrollment_date = db.Column(db.Date, nullable=False)
+    grades = db.Column(db.Float, nullable=True)
 
-    # Adding SerializerMixin for easy JSON serialization
-    def __init__(self, student_id, course_id, enrollment_date=None):
-        self.student_id = student_id
-        self.course_id = course_id
-        self.enrollment_date = enrollment_date or datetime.utcnow()
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
+    # Relationships
+    student = db.relationship("Student", back_populates="enrollments")
+    unit = db.relationship("Unit", back_populates="enrollments")
 
-# Example of a Many-to-Many relationship with Association Proxy
-class StudentCourseAssociation(db.Model):
-    __tablename__ = 'student_course_association'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
-    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
-
-    student = db.relationship('Student', backref='course_associations')
-    course = db.relationship('Course', backref='student_associations')
-
-    # Using association_proxy to simplify access to both sides of the relationship
-    student_name = association_proxy('student', 'name')
-    course_title = association_proxy('course', 'title')
-
-    def __init__(self, student_id, course_id):
-        self.student_id = student_id
-        self.course_id = course_id
-
-
-
+    # Serialization Rules
+    serialize_rules = ("-student.enrollments", "-unit.enrollments")
