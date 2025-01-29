@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import StudentForm from "../components/StudentForm";
+import EditStudentForm from "../components/EditStudentForm";
 
 interface Student {
   id: number;
@@ -10,6 +11,7 @@ interface Student {
 
 export default function Students() {
   const [students, setStudents] = useState<Student[]>([]);
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
 
   useEffect(() => {
     fetchStudents();
@@ -40,6 +42,15 @@ export default function Students() {
       {/* Add Student Form */}
       <StudentForm setStudents={setStudents} />
 
+      {/* Edit Student Form (Conditional) */}
+      {editingStudent && (
+        <EditStudentForm
+          student={editingStudent}
+          setStudents={setStudents}
+          onClose={() => setEditingStudent(null)}
+        />
+      )}
+
       {/* Student List */}
       <table className="w-full border-collapse border border-gray-300 mt-4">
         <thead>
@@ -57,7 +68,13 @@ export default function Students() {
                 <td className="border p-2">{student.id}</td>
                 <td className="border p-2">{student.name}</td>
                 <td className="border p-2">{student.age}</td>
-                <td className="border p-2">
+                <td className="border p-2 space-x-2">
+                  <button
+                    onClick={() => setEditingStudent(student)}
+                    className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-700"
+                  >
+                    Edit
+                  </button>
                   <button
                     onClick={() => handleDelete(student.id)}
                     className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700"
