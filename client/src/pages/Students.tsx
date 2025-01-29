@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import StudentForm from "../components/StudentForm";
 
 interface Student {
   id: number;
@@ -35,7 +36,12 @@ export default function Students() {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Student List</h1>
-      <table className="w-full border-collapse border border-gray-300">
+
+      {/* Add Student Form */}
+      <StudentForm setStudents={setStudents} />
+
+      {/* Student List */}
+      <table className="w-full border-collapse border border-gray-300 mt-4">
         <thead>
           <tr className="bg-gray-200">
             <th className="border p-2">ID</th>
