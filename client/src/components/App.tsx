@@ -1,9 +1,8 @@
-import React from "react"; // ✅ Required in TypeScript
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Navbar from "./Navbar";
 import Home from "../pages/Home";
 import Students from "../pages/Students";
-import Enrollments from "../pages/Enrollments";
-import Navbar from "./Navbar";
 
 export default function App() {
   return (
@@ -12,7 +11,6 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/students" element={<Students />} />
-        <Route path="/enrollments" element={<Enrollments />} />
       </Routes>
     </Router>
   );
