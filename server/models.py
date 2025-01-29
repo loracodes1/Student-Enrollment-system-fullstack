@@ -39,7 +39,7 @@ class Instructor(db.Model, SerializerMixin):
     serialize_rules = ("-units.instructor", "-department.instructors")
 
 
-# ✅ Unit Model (One-to-Many: Units → Enrollments)
+
 class Unit(db.Model, SerializerMixin):
     __tablename__ = 'units'
 
@@ -60,7 +60,7 @@ class Unit(db.Model, SerializerMixin):
     serialize_rules = ("-instructor.units", "-enrollments.unit")
 
 
-# ✅ Student Model (One-to-Many: Students → Enrollments)
+
 class Student(db.Model, SerializerMixin):
     __tablename__ = 'students'
 
@@ -78,7 +78,7 @@ class Student(db.Model, SerializerMixin):
     serialize_rules = ("-enrollments.student",)
 
 
-# ✅ Enrollment Model (Many-to-Many: Students ↔ Units)
+
 class Enrollment(db.Model, SerializerMixin):
     __tablename__ = 'enrollments'
 
