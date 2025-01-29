@@ -2,7 +2,7 @@ from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.ext.associationproxy import association_proxy
 from config import db
 
-# ✅ Department Model (One-to-Many: Departments → Instructors)
+
 class Department(db.Model, SerializerMixin):
     __tablename__ = 'departments'
 
@@ -18,7 +18,6 @@ class Department(db.Model, SerializerMixin):
     serialize_rules = ("-instructors.department",)
 
 
-# ✅ Instructor Model (One-to-Many: Instructors → Units)
 class Instructor(db.Model, SerializerMixin):
     __tablename__ = 'instructors'
 
@@ -76,7 +75,6 @@ class Student(db.Model, SerializerMixin):
 
     # Serialization Rules
     serialize_rules = ("-enrollments.student",)
-
 
 
 class Enrollment(db.Model, SerializerMixin):

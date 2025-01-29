@@ -25,7 +25,6 @@ if __name__ == '__main__':
         db.session.query(Department).delete()
         db.session.commit()
 
-        # ✅ Seed Departments
         departments = []
         department_names = ["Computer Science", "Mathematics", "Physics", "Biology", "History"]
         for name in department_names:
@@ -34,9 +33,9 @@ if __name__ == '__main__':
             db.session.add(department)
 
         db.session.commit()
-        print(f"✅ Seeded {len(departments)} departments")
+        print(f"Seeded {len(departments)} departments")
 
-        # ✅ Seed Instructors
+        # Seed Instructors
         instructors = []
         for _ in range(10):
             instructor = Instructor(
@@ -48,9 +47,9 @@ if __name__ == '__main__':
             db.session.add(instructor)
 
         db.session.commit()
-        print(f"✅ Seeded {len(instructors)} instructors")
+        print(f" Seeded {len(instructors)} instructors")
 
-        # ✅ Seed Units
+        # Seed Units
         units = []
         unit_titles = ["Data Structures", "Calculus", "Linear Algebra", "Quantum Mechanics", "Genetics", "World History"]
         for title in unit_titles:
@@ -62,9 +61,9 @@ if __name__ == '__main__':
             db.session.add(unit)
 
         db.session.commit()
-        print(f"✅ Seeded {len(units)} units")
+        print(f" Seeded {len(units)} units")
 
-        # ✅ Seed Students
+        #  Seed Students
         students = []
         for _ in range(20):
             student = Student(
@@ -75,24 +74,27 @@ if __name__ == '__main__':
             db.session.add(student)
 
         db.session.commit()
-        print(f"✅ Seeded {len(students)} students")
+        print(f" Seeded {len(students)} students")
 
-        # ✅ Seed Enrollments (Many-to-Many Relationship)
+        #  Seed Enrollments (Many-to-Many Relationship)
         enrollments = []
-        for student in students:
-            num_enrollments = randint(1, 3)  # Each student enrolls in 1-3 units
-            enrolled_units = rc(units, num_enrollments) if num_enrollments > 1 else [rc(units)]
-            for unit in enrolled_units:
-                enrollment = Enrollment(
-                    student_id=student.id,
-                    unit_id=unit.id,
-                    enrollment_date=fake.date_between(start_date="-1y", end_date="today"),
-                    grades=round(uniform(50, 100), 2)  # Random grade between 50 and 100
-                )
-                enrollments.append(enrollment)
-                db.session.add(enrollment)
+        from random import sample
+
+# Ensure students enroll in 1-3 random units
+for student in students:
+    num_enrollments = randint(1, 3)  # Each student enrolls in 1-3 units
+    enrolled_units = sample(units, num_enrollments)  # Picks unique units
+    
+    for unit in enrolled_units:
+        enrollment = Enrollment(
+            student_id=student.id,
+            unit_id=unit.id,
+            enrollment_date=fake.date_between(start_date="-1y", end_date="today"),
+            grades=round(uniform(50, 100), 2)  # Random grade between 50 and 100
+        )
+        db.session.add(enrollment)
 
         db.session.commit()
-        print(f"✅ Seeded {len(enrollments)} enrollments")
+        print(f" Seeded {len(enrollments)} enrollments")
 
-        print("🎉 Database seeding complete!")
+        print(" Database seeding complete!")
