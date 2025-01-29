@@ -1,15 +1,21 @@
-import React from "react"; // ✅ Required in TypeScript
+import React from "react";
 import { Link } from "react-router-dom";
 
 export default function Navbar() {
   return (
-    <nav className="p-4 bg-blue-500 text-white flex justify-between">
-      <h1 className="text-lg font-bold">Enrollment System</h1>
-      <div>
-        <Link to="/" className="px-4">Home</Link>
-        <Link to="/students" className="px-4">Students</Link>
-        <Link to="/enrollments" className="px-4">Enrollments</Link>
-      </div>
+    <nav className="bg-blue-600 text-white p-4">
+      <ul className="flex space-x-6">
+        <li>
+          <Link to="/" className="hover:underline">
+            Home
+          </Link>
+        </li>
+        <li>
+          <Link to="/students" className="hover:underline">
+            Students
+          </Link>
+        </li>
+      </ul>
     </nav>
   );
 }
