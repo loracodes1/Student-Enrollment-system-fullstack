@@ -16,7 +16,7 @@ export default function Enrollments() {
       <h1 className="text-2xl font-bold mb-4">Enrollments</h1>
       <ul>
         {enrollments.map((enrollment: any) => (
-          <li key={enrollment.id}>Student {enrollment.student_id} enrolled in Unit {enrollment.unit_id}</li>
+          <li key={enrollment.id}>Student "{enrollment.student.name}" enrolled in Unit "{enrollment.unit.title}"</li>
         ))}
       </ul>
     </div>

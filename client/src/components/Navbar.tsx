@@ -15,6 +15,21 @@ export default function Navbar() {
             Students
           </Link>
         </li>
+        <li>
+          <Link to="/enrollments" className="hover:underline">
+            Enrollments
+          </Link>
+        </li>
+        <li>
+          <Link to="/instructors" className="hover:underline">
+            Instructors
+          </Link>
+        </li>
+        <li>
+          <Link to="/instructors" className="hover:underline">
+            Units
+          </Link>
+        </li>
       </ul>
     </nav>
   );
