@@ -6,6 +6,7 @@
 from flask import request
 from flask_restful import Api, Resource
 from flask_cors import CORS
+from datetime import datetime
 
 # Local imports
 from config import app, db
@@ -16,6 +17,13 @@ CORS(app)
 
 # Initialize Flask-RESTful API
 api = Api(app)
+
+@app.after_request
+def apply_cors(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"  # Allow all origins
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PATCH, DELETE, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    return response
 
 
 # ==========================
@@ -91,7 +99,7 @@ class EnrollmentsResource(Resource):
         new_enrollment = Enrollment(
             student_id=student.id,
             unit_id=unit.id,
-            enrollment_date=data.get("enrollment_date"),
+            enrollment_date= datetime.strptime(data.get("enrollment_date"), "%Y-%m-%d"),
             grades=data.get("grades", None),
         )
 
