@@ -3,6 +3,7 @@ import axios from "axios";
 import StudentForm from "../components/StudentForm";
 import EditStudentForm from "../components/EditStudentForm";
 import EnrollStudentForm from "../components/EnrollStudentForm";
+import Popup from "reactjs-popup";
 
 interface Student {
   id: number;
@@ -19,23 +20,30 @@ interface Enrollment {
 export default function Students() {
   const [students, setStudents] = useState<Student[]>([]);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
-  const [enrollingStudent, setEnrollingStudent] = useState<number | null>(null);
+  const [enrollingStudent, setEnrollingStudent] = useState<Student | null>(null);
   const [enrollments, setEnrollments] = useState<{ [key: number]: Enrollment[] }>({});
 
-  useEffect(() => {
-    fetchStudents();
-  }, []);
+  // Popup
+  const contentStyle = { 
+    background: 'rgb(219, 219, 219)',
+    padding: '10px',
+    margin: 'auto'
+  };
+  const overlayStyle = { background: 'rgba(0,0,0,0.8)' };
+  const arrowStyle = { color: '#000' }; // style for an svg element
 
   const fetchStudents = () => {
     axios
-      .get("http://localhost:5555/students")
-      .then((response) => setStudents(response.data))
+      .get("http://localhost:5000/students")
+      .then((response) => {
+        setStudents(response.data)
+      })
       .catch((error) => console.error("Error fetching students:", error));
   };
 
   const fetchEnrollments = (studentId: number) => {
     axios
-      .get("http://localhost:5555/enrollments")
+      .get("http://localhost:5000/enrollments")
       .then((response) => {
         const studentEnrollments = response.data.filter(
           (enrollment: Enrollment) => enrollment.student_id === studentId
@@ -51,36 +59,75 @@ export default function Students() {
   const handleDelete = (id: number) => {
     if (window.confirm("Are you sure you want to delete this student?")) {
       axios
-        .delete(`http://localhost:5555/students/${id}`)
+        .delete(`http://localhost:5000/students/${id}`)
         .then(() => {
           setStudents((prev) => prev.filter((student) => student.id !== id));
         })
         .catch((error) => console.error("Error deleting student:", error));
     }
   };
+  useEffect(() => {
+    fetchStudents()
+
+    students.forEach((student) => {
+      fetchEnrollments(student.id)
+    })
+  }, [students]);
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Student List</h1>
 
       {/* Add Student Form */}
-      <StudentForm setStudents={setStudents} />
+      <Popup 
+          modal={true}
+          position="center center"
+          contentStyle={contentStyle}
+          overlayStyle={overlayStyle}
+          arrowStyle={arrowStyle}
+          closeOnDocumentClick={true}
+          trigger={<button className="mt-3 ml-2 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Add Student</button>}
+        >
+          <StudentForm setStudents={setStudents} />
+      </Popup>
 
       {/* Edit Student Form (Conditional) */}
       {editingStudent && (
-        <EditStudentForm
-          student={editingStudent}
-          setStudents={setStudents}
-          onClose={() => setEditingStudent(null)}
-        />
+        <Popup 
+          key={editingStudent.id}
+          modal={true}
+          open={true}
+          position="center center"
+          contentStyle={contentStyle}
+          overlayStyle={overlayStyle}
+          arrowStyle={arrowStyle}
+          closeOnDocumentClick={false}
+        >
+          <EditStudentForm
+            student={editingStudent}
+            setStudents={setStudents}
+            onClose={() => setEditingStudent(null)}
+          />
+        </Popup>
       )}
 
       {/* Enroll Student Form (Conditional) */}
       {enrollingStudent !== null && (
-        <EnrollStudentForm
-          studentId={enrollingStudent}
-          onClose={() => setEnrollingStudent(null)}
-        />
+        <Popup 
+          key={enrollingStudent?.id}
+          modal={true}
+          open={true}
+          position="center center"
+          contentStyle={contentStyle}
+          overlayStyle={overlayStyle}
+          arrowStyle={arrowStyle}
+          closeOnDocumentClick={false}
+        >
+          <EnrollStudentForm
+            student={enrollingStudent}
+            onClose={() =>  setEnrollingStudent(null)}
+          />
+        </Popup>
       )}
 
       {/* Student List */}
@@ -102,12 +149,6 @@ export default function Students() {
                 <td className="border p-2">{student.name}</td>
                 <td className="border p-2">{student.age}</td>
                 <td className="border p-2">
-                  <button
-                    onClick={() => fetchEnrollments(student.id)}
-                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-700"
-                  >
-                    View Enrollments
-                  </button>
                   <ul>
                     {enrollments[student.id]?.length > 0 ? (
                       enrollments[student.id].map((enrollment) => (
@@ -132,7 +173,7 @@ export default function Students() {
                     Delete
                   </button>
                   <button
-                    onClick={() => setEnrollingStudent(student.id)}
+                    onClick={() => setEnrollingStudent(student)}
                     className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-700"
                   >
                     Enroll

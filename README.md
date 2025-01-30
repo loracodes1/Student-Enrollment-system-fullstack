@@ -128,14 +128,14 @@ pipenv install
 pipenv shell
 ```
 
-You can run your Flask API on [`localhost:5555`](http://localhost:5555) by
+You can run your Flask API on [`localhost:5555`](http://localhost:5000) by
 running:
 
 ```console
 python server/app.py
 ```
 
-Check that your server serves the default route `http://localhost:5555`. You
+Check that your server serves the default route `http://localhost:5000`. You
 should see a web page with the heading "Project Server".
 
 ### `client/`
@@ -143,7 +143,7 @@ should see a web page with the heading "Project Server".
 The `client/` directory contains all of your frontend code. The file
 `package.json` has been configured with common React application dependencies,
 include `react-router-dom`. The file also sets the `proxy` field to forward
-requests to `"http://localhost:5555". Feel free to change this to another port-
+requests to `"http://localhost:5000". Feel free to change this to another port-
 just remember to configure your Flask app to use another port as well!
 
 To download the dependencies for the frontend client, run:

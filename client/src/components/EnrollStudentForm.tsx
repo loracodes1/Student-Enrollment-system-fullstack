@@ -1,26 +1,33 @@
 import React, { useState } from "react";
 import axios from "axios";
 
+interface Student {
+  id: number;
+  name: string;
+  age: number;
+}
+
 interface EnrollStudentFormProps {
-  studentId: number;
+  student: Student;
   onClose: () => void;
 }
 
-export default function EnrollStudentForm({ studentId, onClose }: EnrollStudentFormProps) {
+export default function EnrollStudentForm({ student, onClose }: EnrollStudentFormProps) {
   const [unitId, setUnitId] = useState("");
 
   const handleEnroll = () => {
     axios
-      .post("http://localhost:5555/enrollments", {
-        student_id: studentId,
+      .post("http://localhost:5000/enrollments", {
+        student_id: student.id,
         unit_id: unitId,
       })
       .then(() => {
         alert("Student enrolled successfully!");
-        onClose();
+        window.location.reload(); // Refreshes the page to fetch updated enrollments
       })
       .catch((error) => console.error("Error enrolling student:", error));
   };
+
 
   return (
     <div className="p-4 border rounded shadow-md bg-white">

@@ -6,7 +6,7 @@ export default function Enrollments() {
   const [enrollments, setEnrollments] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:5555/enrollments")
+    axios.get("http://localhost:5000/enrollments")
       .then(response => setEnrollments(response.data))
       .catch(error => console.error(error));
   }, []);

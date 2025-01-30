@@ -25,7 +25,7 @@ export default function EditStudentForm({ student, setStudents, onClose }: EditS
       })}
       onSubmit={(values, { setSubmitting }) => {
         axios
-          .patch(`http://localhost:5555/students/${student.id}`, values)
+          .patch(`http://localhost:5000/students/${student.id}`, values)
           .then((response) => {
             setStudents((prev) =>
               prev.map((s) => (s.id === student.id ? response.data : s))
