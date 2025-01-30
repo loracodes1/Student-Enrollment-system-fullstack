@@ -4,6 +4,7 @@ import StudentForm from "../components/StudentForm";
 import EditStudentForm from "../components/EditStudentForm";
 import EnrollStudentForm from "../components/EnrollStudentForm";
 import Popup from "reactjs-popup";
+import { InView } from "react-intersection-observer";
 
 interface Student {
   id: number;
@@ -66,13 +67,10 @@ export default function Students() {
         .catch((error) => console.error("Error deleting student:", error));
     }
   };
+  
   useEffect(() => {
     fetchStudents()
-
-    students.forEach((student) => {
-      fetchEnrollments(student.id)
-    })
-  }, [students]);
+  }, []);
 
   return (
     <div className="p-6">
@@ -131,7 +129,7 @@ export default function Students() {
       )}
 
       {/* Student List */}
-      <table className="w-full border-collapse border border-gray-300 mt-4">
+      <table id="students-table" className="w-full border-collapse border border-gray-300 mt-4">
         <thead>
           <tr className="bg-gray-200">
             <th className="border p-2">ID</th>
@@ -144,7 +142,11 @@ export default function Students() {
         <tbody>
           {students.length > 0 ? (
             students.map((student) => (
-              <tr key={student.id} className="border">
+            <InView key={student.id} className="border" as="tr" onChange={(inView) => {
+                if(inView) fetchEnrollments(student.id)
+              }
+            }>
+              {/* <tr key={student.id} className="border"> */}
                 <td className="border p-2">{student.id}</td>
                 <td className="border p-2">{student.name}</td>
                 <td className="border p-2">{student.age}</td>
@@ -179,7 +181,8 @@ export default function Students() {
                     Enroll
                   </button>
                 </td>
-              </tr>
+              {/* </tr> */}
+              </InView>
             ))
           ) : (
             <tr>
